@@ -40,30 +40,28 @@ public final class GamepadMap {
         }
     }
 
-    /** 出厂默认映射表（按键布局依据游戏内置按键设置页截图） */
+    /** 出厂默认映射表（v0.2；Back(视图)键为专用设置键，不参与游戏映射） */
     private static final String[][] DEFAULTS = {
-        // 功能名, 手柄按键名(查表用码在第二列以字符串存的码), 目标键
-        {"移动·上",            String.valueOf(BTN_STICK_UP),                 "W"},
-        {"移动·下",            String.valueOf(BTN_STICK_DOWN),               "S"},
-        {"移动·左",            String.valueOf(BTN_STICK_LEFT),               "A"},
-        {"移动·右",            String.valueOf(BTN_STICK_RIGHT),              "D"},
-        {"移动·上(十字键)",     String.valueOf(KeyEvent.KEYCODE_DPAD_UP),     "W"},
-        {"移动·下(十字键)",     String.valueOf(KeyEvent.KEYCODE_DPAD_DOWN),   "S"},
-        {"移动·左(十字键)",     String.valueOf(KeyEvent.KEYCODE_DPAD_LEFT),   "A"},
-        {"移动·右(十字键)",     String.valueOf(KeyEvent.KEYCODE_DPAD_RIGHT),  "D"},
-        {"跳跃",               String.valueOf(KeyEvent.KEYCODE_BUTTON_A),     "空格"},
-        {"滑铲（空中：俯冲）",  String.valueOf(KeyEvent.KEYCODE_BUTTON_B),     "Shift"},
-        {"互动",               String.valueOf(KeyEvent.KEYCODE_BUTTON_X),     "E"},
-        {"终极技",             String.valueOf(KeyEvent.KEYCODE_BUTTON_Y),     "R"},
-        {"锁定目标",           String.valueOf(KeyEvent.KEYCODE_BUTTON_L1),    "鼠标右键"},
-        {"自动/手动瞄准",       String.valueOf(KeyEvent.KEYCODE_BUTTON_R1),    "Q"},
-        {"自动终极技能",        String.valueOf(KeyEvent.KEYCODE_BUTTON_L2),    "Y"},
-        {"自动前进",           String.valueOf(KeyEvent.KEYCODE_BUTTON_R2),    "T"},
-        {"放逐（升级时）",      String.valueOf(KeyEvent.KEYCODE_BUTTON_THUMBL),"Z"},
-        {"刷新（升级时）",      String.valueOf(KeyEvent.KEYCODE_BUTTON_THUMBR),"F"},
-        {"跳过（升级时）",      String.valueOf(KeyEvent.KEYCODE_BUTTON_SELECT),"X"},
-        {"大地图",             String.valueOf(KeyEvent.KEYCODE_BUTTON_START), "M"},
-        {"暂停",               String.valueOf(KeyEvent.KEYCODE_ESCAPE),       "P"},
+        // 功能名, 手柄按键码(字符串), 目标键名
+        {"移动·上",            String.valueOf(BTN_STICK_UP),                       "W"},
+        {"移动·下",            String.valueOf(BTN_STICK_DOWN),                     "S"},
+        {"移动·左",            String.valueOf(BTN_STICK_LEFT),                     "A"},
+        {"移动·右",            String.valueOf(BTN_STICK_RIGHT),                    "D"},
+        {"跳跃",               String.valueOf(KeyEvent.KEYCODE_BUTTON_A),           "空格"},
+        {"滑铲（空中：俯冲）",  String.valueOf(KeyEvent.KEYCODE_BUTTON_B),           "Shift"},
+        {"互动",               String.valueOf(KeyEvent.KEYCODE_BUTTON_X),           "E"},
+        {"终极技",             String.valueOf(KeyEvent.KEYCODE_BUTTON_Y),           "R"},
+        {"锁定目标",           String.valueOf(KeyEvent.KEYCODE_BUTTON_L1),          "鼠标右键"},
+        {"自动/手动瞄准",       String.valueOf(KeyEvent.KEYCODE_BUTTON_R1),          "Q"},
+        {"自动终极技能",        String.valueOf(KeyEvent.KEYCODE_DPAD_UP),            "Y"},
+        {"暂停",               String.valueOf(KeyEvent.KEYCODE_DPAD_DOWN),          "P"},
+        {"刷新（升级时）",      String.valueOf(KeyEvent.KEYCODE_DPAD_LEFT),          "F"},
+        {"跳过（升级时）",      String.valueOf(KeyEvent.KEYCODE_DPAD_RIGHT),         "X"},
+        {"放逐（升级时）",      String.valueOf(KeyEvent.KEYCODE_BUTTON_THUMBL),      "Z"},
+        {"大地图",             String.valueOf(KeyEvent.KEYCODE_BUTTON_L2),          "M"},
+        {"自动前进",           String.valueOf(KeyEvent.KEYCODE_BUTTON_R2),          "T"},
+        {"开始(菜单键)",        String.valueOf(KeyEvent.KEYCODE_BUTTON_START),       "未绑定"},
+        {"L3右摇杆按下(备用)",  String.valueOf(KeyEvent.KEYCODE_BUTTON_THUMBR),      "未绑定"},
     };
 
     private static final String PREFS = "gamepad_mapping";
@@ -192,7 +190,7 @@ public final class GamepadMap {
         return "按键" + code;
     }
 
-    /** 可选手柄按键列表（供设置界面挑选） */
+    /** 可选手柄按键列表（供设置界面挑选；Back(视图)键为专用设置键，不列出） */
     public static List<Integer> allButtons() {
         List<Integer> l = new ArrayList<>();
         l.add((int) KeyEvent.KEYCODE_BUTTON_A);
@@ -206,7 +204,6 @@ public final class GamepadMap {
         l.add((int) KeyEvent.KEYCODE_BUTTON_THUMBL);
         l.add((int) KeyEvent.KEYCODE_BUTTON_THUMBR);
         l.add((int) KeyEvent.KEYCODE_BUTTON_START);
-        l.add((int) KeyEvent.KEYCODE_BUTTON_SELECT);
         l.add((int) KeyEvent.KEYCODE_DPAD_UP);
         l.add((int) KeyEvent.KEYCODE_DPAD_DOWN);
         l.add((int) KeyEvent.KEYCODE_DPAD_LEFT);

@@ -1,0 +1,17 @@
+{
+  "name": "pokebonk",
+  "productName": "Pokebonk",
+  "version": "0.2.0",
+  "description": "Pokebonk 电脑手柄版：Chromium 桌面封装，Xbox 手柄映射 + Ins 键设置菜单",
+  "main": "main.js",
+  "author": "byazlle",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "package": "electron-packager . Pokebonk --platform=win32 --arch=x64 --out=dist --overwrite"
+  },
+  "devDependencies": {
+    "@electron/packager": "^18.3.6",
+    "electron": "^31.7.0"
+  }
+}

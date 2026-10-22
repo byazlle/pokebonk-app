@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Pokebonk 手柄版 (PC)</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #141420; font-family: "Microsoft YaHei", sans-serif; }
+  #game { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+  /* ---------- 主菜单（覆盖层，游戏在背后运行） ---------- */
+  #menu { position: absolute; inset: 0; background: rgba(20,20,32,.9); display: flex;
+          align-items: center; justify-content: center; z-index: 10; }
+  #menu .inner { text-align: center; }
+  #menu h1 { color: #F5D442; font-size: 56px; letter-spacing: 10px; }
+  #menu .ver { color: #9A9AB0; margin-top: 8px; font-size: 15px; }
+  .btn { display: block; width: 300px; margin: 18px auto 0; padding: 16px 0; font-size: 19px;
+         color: #fff; border: none; border-radius: 8px; cursor: pointer; }
+  .btn:hover { filter: brightness(1.15); }
+  #btn-play { background: #E8463A; margin-top: 42px; }
+  #btn-settings { background: #3D3D8F; }
+  #menu .hint { color: #8A8AA0; font-size: 13px; margin-top: 30px; line-height: 1.9; }
+  .key { background: #2C2C44; border: 1px solid #4A4A6E; border-radius: 4px; padding: 1px 7px;
+         color: #E8E8F5; font-family: Consolas, monospace; }
+
+  /* ---------- 设置页（映射表） ---------- */
+  #settings { position: absolute; inset: 0; background: #F2F0F7; z-index: 20; display: none;
+              flex-direction: column; }
+  #settings .bar { height: 52px; background: #F5D442; display: flex; align-items: center;
+                   padding: 0 16px; gap: 10px; }
+  #settings .bar .title { flex: 1; text-align: center; font-weight: bold; color: #333; font-size: 18px; }
+  #settings .bar button { padding: 8px 18px; border: none; border-radius: 6px; cursor: pointer; }
+  #settings .tip { background: #E8E4F0; color: #666; font-size: 13px; padding: 6px 16px; }
+  #map-head, .map-row { display: flex; align-items: center; padding: 0 16px; }
+  #map-head { height: 36px; background: #fff; color: #333; font-weight: bold; font-size: 14px; }
+  #map-list { flex: 1; overflow-y: auto; background: #fff; }
+  .map-row { height: 44px; border-bottom: 1px solid #EEE; font-size: 15px; }
+  .c1 { flex: 1.6; } .c2, .c3 { flex: 1.2; text-align: center; }
+  .map-row select { width: 90%; padding: 4px; font-size: 14px; }
+  .c2 select { color: #E8463A; font-weight: bold; }
+  .c3 select { color: #3D3D8F; font-weight: bold; }
+</style>
+</head>
+<body>
+
+  <!-- 游戏：启动即加载，主菜单期间在背后持续运行 -->
+  <webview id="game" src="https://pokebonk.com/" partition="persist:pokebonk" allowpopups="true"></webview>
+
+  <!-- 主菜单 -->
+  <div id="menu">
+    <div class="inner">
+      <h1>POKEBONK</h1>
+      <div class="ver" id="ver">v0.2 · 电脑手柄版</div>
+      <button class="btn" id="btn-play">▶  开始游戏</button>
+      <button class="btn" id="btn-settings">⚙  设置</button>
+      <div class="hint">
+        键盘：按 <span class="key">Ins</span> 键随时打开/关闭设置菜单<br>
+        手柄：按 <span class="key">Back(视图键)</span> 随时打开/关闭设置菜单<br>
+        主菜单期间游戏已在后台加载运行
+      </div>
+    </div>
+  </div>
+
+  <!-- 设置页：三列映射表（游戏内功能 / 手柄按键 / 绑定目标键） -->
+  <div id="settings">
+    <div class="bar">
+      <button id="btn-close">返回</button>
+      <div class="title">设置 · Xbox 手柄按键映射</div>
+      <button id="btn-reset">重置</button>
+    </div>
+    <div class="tip">手柄按键 → 合成键盘事件注入游戏（左列功能与游戏内按键设置页一致）。「Back(视图键)」为设置专用键。</div>
+    <div id="map-head">
+      <div class="c1">游戏内对应功能</div>
+      <div class="c2">手柄按键</div>
+      <div class="c3">绑定目标键</div>
+    </div>
+    <div id="map-list"></div>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>

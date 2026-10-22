@@ -17,22 +17,27 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
  * 游戏主界面：Chromium(System WebView) + 沉浸式全屏横屏。
- * 手柄版（flavor=gamepad）额外支持 Xbox 手柄输入：手柄按键 → 注入键盘/鼠标事件到 WebView。
+ *
+ * v0.2 结构：
+ *  - 启动即加载游戏，主菜单为覆盖在 WebView 之上的悬浮层（游戏在背后继续运行）
+ *  - 「开始游戏」隐藏菜单；「设置」(仅手柄版) 打开映射设置页
+ *  - 手柄专用键 Back(视图键)：游戏中随时呼出设置，打开设置时游戏挂起
+ *  - 游戏运行期间切后台/看菜单均不暂停 WebView（需求：后台继续运行）
  */
 public class GameActivity extends Activity {
 
@@ -55,13 +60,14 @@ public class GameActivity extends Activity {
     private boolean gamepadMode;
     private List<GamepadMap.Entry> mapping;
 
+    /** 主菜单悬浮层 */
+    private View menuOverlay;
+    private boolean menuVisible = true;
+    /** 标记本次 onPause 是否因打开设置引起（设置打开 → 挂起游戏） */
+    private boolean settingsRequested = false;
+
     /** 当前已按下的注入目标键，避免重复 DOWN / 漏 UP */
     private final Set<Integer> heldKeys = new HashSet<>();
-    /** 摇杆/十字键(HAT)/扳机等轴状态的按下标记 */
-    private final Map<Integer, Boolean> axisState = new HashMap<>();
-
-    private static final float AX_ON = 0.55f;   // 轴触发阈值
-    private static final float AX_OFF = 0.35f;  // 轴释放阈值（滞回，防抖动）
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
@@ -83,19 +89,22 @@ public class GameActivity extends Activity {
         setContentView(rootLayout);
 
         setupWebView();
+        setupMenuOverlay();
 
         if (savedInstanceState != null) {
+            menuVisible = savedInstanceState.getBoolean("menuVisible", true);
             webView.restoreState(savedInstanceState);
         } else {
             webView.loadUrl(HOME_URL);
         }
+        menuOverlay.setVisibility(menuVisible ? View.VISIBLE : View.GONE);
     }
 
     private void reloadMapping() {
         mapping = GamepadMap.load(this);
     }
 
-    /** 沉浸式全屏：隐藏状态栏 + 导航栏，从屏幕边缘上滑可临时呼出（类似王者荣耀） */
+    /** 沉浸式全屏：隐藏状态栏 + 导航栏，从屏幕边缘上滑可临时呼出 */
     private void setupImmersiveMode() {
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
         insetsController = WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
@@ -103,6 +112,44 @@ public class GameActivity extends Activity {
         insetsController.setSystemBarsBehavior(
                 WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    }
+
+    /** 主菜单悬浮层：游戏在背后持续运行 */
+    private void setupMenuOverlay() {
+        menuOverlay = getLayoutInflater().inflate(R.layout.menu_overlay, rootLayout, false);
+
+        String appName = getString(R.string.app_name);
+        ((TextView) menuOverlay.findViewById(R.id.tv_version)).setText("v0.2 · " + appName);
+
+        Button btnSettings = menuOverlay.findViewById(R.id.btn_settings);
+        TextView hint = menuOverlay.findViewById(R.id.tv_hint);
+        if (gamepadMode) {
+            btnSettings.setVisibility(View.VISIBLE);
+            btnSettings.setOnClickListener(v -> openSettings());
+            hint.setText("游戏内按手柄 Back(视图)键 随时打开设置");
+        } else {
+            btnSettings.setVisibility(View.GONE);
+            hint.setText("触屏操作 · 需要 Xbox 手柄支持请安装手柄版");
+        }
+
+        menuOverlay.findViewById(R.id.btn_play).setOnClickListener(v -> hideMenu());
+        rootLayout.addView(menuOverlay, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+    }
+
+    private void hideMenu() {
+        menuVisible = false;
+        menuOverlay.setVisibility(View.GONE);
+    }
+
+    private void showMenu() {
+        menuVisible = true;
+        menuOverlay.setVisibility(View.VISIBLE);
+    }
+
+    private void openSettings() {
+        settingsRequested = true;   // 设置打开期间挂起游戏（见 onPause）
+        startActivity(new Intent(this, MappingActivity.class));
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -192,7 +239,7 @@ public class GameActivity extends Activity {
 
     /** 由按键码查映射目标并注入；返回是否消费该事件 */
     private boolean handleGamepadButton(int buttonCode, boolean down) {
-        if (!gamepadMode || mapping == null) return false;
+        if (!gamepadMode || mapping == null || menuVisible) return false;
         int target = Integer.MIN_VALUE;
         for (GamepadMap.Entry e : mapping) {
             if (e.button == buttonCode) { target = e.target; break; }
@@ -233,24 +280,38 @@ public class GameActivity extends Activity {
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (event.getRepeatCount() == 0 && isGamepadSource(event)
-                && handleGamepadButton(keyCode, true)) {
-            return true;
+        if (gamepadMode && isGamepadSource(event) && event.getRepeatCount() == 0) {
+            // 专用键：Back(视图键) → 打开设置
+            if (keyCode == KeyEvent.KEYCODE_BUTTON_SELECT) {
+                openSettings();
+                return true;
+            }
+            // 菜单中：A 键 = 开始游戏；其余手柄键不注入
+            if (menuVisible) {
+                if (keyCode == KeyEvent.KEYCODE_BUTTON_A) {
+                    hideMenu();
+                }
+                return true;
+            }
+            if (handleGamepadButton(keyCode, true)) return true;
         }
         return super.onKeyDown(keyCode, event);
     }
 
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if (isGamepadSource(event) && handleGamepadButton(keyCode, false)) {
-            return true;
+        if (gamepadMode && isGamepadSource(event)) {
+            if (keyCode == KeyEvent.KEYCODE_BUTTON_SELECT) return true;
+            if (menuVisible) return true;
+            if (handleGamepadButton(keyCode, false)) return true;
         }
         return super.onKeyUp(keyCode, event);
     }
 
     @Override
     public boolean onGenericMotionEvent(MotionEvent event) {
-        if (gamepadMode
+        // 菜单显示期间不处理摇杆（防止误注入）
+        if (gamepadMode && !menuVisible
                 && (event.getSource() & InputDevice.SOURCE_CLASS_JOYSTICK) != 0
                 && event.getAction() == MotionEvent.ACTION_MOVE) {
             // 左摇杆
@@ -273,11 +334,14 @@ public class GameActivity extends Activity {
         return super.onGenericMotionEvent(event);
     }
 
+    /** 轴向状态缓存（带滞回） */
+    private final Set<Integer> axisPressed = new HashSet<>();
+
     /** 处理一根双向轴（摇杆方向 / HAT 十字键） */
     private void handleDir(MotionEvent ev, int axis, int negBtn, int posBtn) {
         float v = ev.getAxisValue(axis);
-        updateAxisButton(negBtn, v < -AX_ON, v > -AX_OFF);
-        updateAxisButton(posBtn, v > AX_ON, v < AX_OFF);
+        updateAxisButton(negBtn, v < -0.55f, v > -0.35f);
+        updateAxisButton(posBtn, v > 0.55f, v < 0.35f);
     }
 
     /** 处理扳机轴 */
@@ -289,24 +353,23 @@ public class GameActivity extends Activity {
 
     /** 带滞回的轴按键状态机 */
     private void updateAxisButton(int button, boolean wantOn, boolean isOff) {
-        Boolean cur = axisState.get(button);
-        boolean pressed = cur != null && cur;
+        boolean pressed = axisPressed.contains(button);
         if (!pressed && wantOn) {
-            axisState.put(button, true);
+            axisPressed.add(button);
             handleGamepadButton(button, true);
         } else if (pressed && isOff) {
-            axisState.put(button, false);
+            axisPressed.remove(button);
             handleGamepadButton(button, false);
         }
     }
 
-    /** 退出/切后台时释放所有按住的键，避免"按键卡死" */
+    /** 释放所有按住的键，避免"按键卡死" */
     private void releaseAll() {
         for (int kc : new HashSet<>(heldKeys)) {
             dispatchKey(kc, false);
         }
         heldKeys.clear();
-        axisState.clear();
+        axisPressed.clear();
     }
 
     // ==================== 生命周期 / 返回键 ====================
@@ -323,16 +386,17 @@ public class GameActivity extends Activity {
             webView.setVisibility(View.VISIBLE);
             return;
         }
-        // 2) 有历史记录 → 网页后退
+        // 2) 游戏进行中 → 回到主菜单（游戏在背后继续运行）
+        if (!menuVisible) {
+            showMenu();
+            return;
+        }
+        // 3) 有历史记录 → 网页后退
         if (webView.canGoBack()) {
             webView.goBack();
             return;
         }
-        // 3) 手柄版直接返回菜单；原版双击返回键退出（防误触）
-        if (gamepadMode) {
-            finish();
-            return;
-        }
+        // 4) 主菜单下双击返回键退出（防误触）
         long now = System.currentTimeMillis();
         if (now - lastBackPressTime < 2000) {
             finish();
@@ -345,7 +409,10 @@ public class GameActivity extends Activity {
     @Override
     protected void onPause() {
         releaseAll();
-        if (webView != null) webView.onPause();
+        // 仅在"打开设置"时挂起游戏；其余情况（看菜单/切后台）游戏继续运行
+        if (settingsRequested && webView != null) {
+            webView.onPause();
+        }
         super.onPause();
     }
 
@@ -353,7 +420,8 @@ public class GameActivity extends Activity {
     protected void onResume() {
         super.onResume();
         if (gamepadMode) reloadMapping();   // 从设置页返回后刷新映射
-        if (webView != null) webView.onResume();
+        if (webView != null) webView.onResume();  // 设置关闭 → 恢复游戏
+        settingsRequested = false;
         if (insetsController != null) {
             insetsController.hide(WindowInsetsCompat.Type.systemBars());
         }
@@ -362,6 +430,7 @@ public class GameActivity extends Activity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        outState.putBoolean("menuVisible", menuVisible);
         if (webView != null) webView.saveState(outState);
     }
 
