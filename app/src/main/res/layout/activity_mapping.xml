@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 映射按键设置页：三列对照表 + 恢复默认 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F2F0F7"
+    android:keepScreenOn="true">
+
+    <!-- 顶栏 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="#F5D442"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp">
+
+        <Button
+            android:id="@+id/btn_back"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:text="返回"
+            android:textSize="14sp"
+            android:backgroundTint="#FFFFFF"
+            android:textColor="#333333" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="映射按键设置（Xbox 手柄）"
+            android:textColor="#333333"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btn_reset"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:text="重置"
+            android:textSize="14sp"
+            android:backgroundTint="#FFFFFF"
+            android:textColor="#333333" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#E8E4F0"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="6dp"
+        android:paddingBottom="6dp"
+        android:text="点按一行 → 修改手柄按键；长按一行 → 修改绑定的目标键"
+        android:textColor="#666677"
+        android:textSize="13sp" />
+
+    <!-- 表头 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="38dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:background="#FFFFFF">
+
+        <TextView
+            android:layout_width="0dp" android:layout_weight="1.6"
+            android:layout_height="wrap_content"
+            android:text="游戏内对应功能" android:textColor="#333333" android:textStyle="bold" android:textSize="14sp"/>
+
+        <TextView
+            android:layout_width="0dp" android:layout_weight="1.2"
+            android:layout_height="wrap_content"
+            android:text="手柄按键" android:textColor="#333333" android:textStyle="bold" android:textSize="14sp" android:gravity="center"/>
+
+        <TextView
+            android:layout_width="0dp" android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="绑定目标键" android:textColor="#333333" android:textStyle="bold" android:textSize="14sp" android:gravity="center"/>
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/list_mapping"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:divider="#DDD8E8"
+        android:dividerHeight="1dp" />
+</LinearLayout>

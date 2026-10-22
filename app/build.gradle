@@ -1,0 +1,52 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.pokebonk.app'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.pokebonk.app"
+        minSdk 21          // 兼容 Android 5.0+，WebView 内核均为 Chromium
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+// 编码统一 UTF-8（源码含中文）
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+flavorDimensions "version"
+productFlavors {
+    // 原版：纯 WebView 封装
+    original {
+        dimension "version"
+        resValue "string", "app_name", "Pokebonk"
+    }
+    // 手柄版：Xbox 手柄映射 + 启动菜单 + 按键映射设置
+    gamepad {
+        dimension "version"
+        applicationIdSuffix ".gamepad"
+        resValue "string", "app_name", "Pokebonk手柄版"
+    }
+}
+
+dependencies {
+    implementation 'androidx.core:core:1.13.1'
+}
