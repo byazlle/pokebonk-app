@@ -25,26 +25,26 @@ android {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
+
+    flavorDimensions "version"
+    productFlavors {
+        // 原版：纯 WebView 封装
+        original {
+            dimension "version"
+            resValue "string", "app_name", "Pokebonk"
+        }
+        // 手柄版：Xbox 手柄映射 + 启动菜单 + 按键映射设置
+        gamepad {
+            dimension "version"
+            applicationIdSuffix ".gamepad"
+            resValue "string", "app_name", "Pokebonk手柄版"
+        }
+    }
 }
 
 // 编码统一 UTF-8（源码含中文）
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
-}
-
-flavorDimensions "version"
-productFlavors {
-    // 原版：纯 WebView 封装
-    original {
-        dimension "version"
-        resValue "string", "app_name", "Pokebonk"
-    }
-    // 手柄版：Xbox 手柄映射 + 启动菜单 + 按键映射设置
-    gamepad {
-        dimension "version"
-        applicationIdSuffix ".gamepad"
-        resValue "string", "app_name", "Pokebonk手柄版"
-    }
 }
 
 dependencies {
