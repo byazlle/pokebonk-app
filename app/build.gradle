@@ -26,6 +26,11 @@ android {
         targetCompatibility JavaVersion.VERSION_17
     }
 
+    // 需要 BuildConfig.FLAVOR 判断当前版本
+    buildFeatures {
+        buildConfig true
+    }
+
     flavorDimensions "version"
     productFlavors {
         // 原版：纯 WebView 封装

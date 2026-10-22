@@ -30,7 +30,7 @@ public final class GamepadMap {
     /** 一条映射：功能名 / 手柄按键码 / 默认目标键码 */
     public static class Entry {
         public final String func;     // 游戏内对应功能
-        public final int button;      // 当前映射的手柄按键
+        public int button;            // 当前映射的手柄按键
         public final int defTarget;   // 出厂默认目标键
         public int target;            // 当前绑定目标键
 
