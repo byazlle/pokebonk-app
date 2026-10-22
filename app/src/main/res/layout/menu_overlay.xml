@@ -3,7 +3,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#E6141420"
+    android:background="@drawable/bg_menu"
     android:clickable="true"
     android:focusable="true"
     android:keepScreenOn="true">
@@ -16,42 +16,56 @@
         android:gravity="center">
 
         <TextView
+            android:id="@+id/tv_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="POKEBONK"
             android:textColor="#F5D442"
-            android:textSize="44sp"
+            android:textSize="46sp"
             android:textStyle="bold"
-            android:letterSpacing="0.12" />
+            android:letterSpacing="0.14"
+            android:shadowColor="#F5D442"
+            android:shadowDx="0"
+            android:shadowDy="0"
+            android:shadowRadius="22" />
 
         <TextView
             android:id="@+id/tv_version"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="v0.2"
-            android:textColor="#9A9AB0"
-            android:textSize="15sp"
-            android:layout_marginTop="6dp" />
+            android:textColor="#C9C9DE"
+            android:textSize="13sp"
+            android:paddingLeft="14dp"
+            android:paddingRight="14dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:layout_marginTop="10dp"
+            android:background="#33FFFFFF" />
 
         <Button
             android:id="@+id/btn_play"
-            android:layout_width="280dp"
-            android:layout_height="62dp"
-            android:layout_marginTop="38dp"
+            android:layout_width="290dp"
+            android:layout_height="64dp"
+            android:layout_marginTop="40dp"
             android:text="▶  开始游戏"
             android:textSize="19sp"
             android:textColor="#FFFFFF"
-            android:backgroundTint="#E8463A" />
+            android:background="@drawable/btn_play"
+            android:stateListAnimator="@null"
+            android:elevation="6dp" />
 
         <Button
             android:id="@+id/btn_settings"
-            android:layout_width="280dp"
-            android:layout_height="62dp"
+            android:layout_width="290dp"
+            android:layout_height="64dp"
             android:layout_marginTop="16dp"
             android:text="⚙  设置"
             android:textSize="19sp"
             android:textColor="#FFFFFF"
-            android:backgroundTint="#3D3D8F" />
+            android:background="@drawable/btn_settings"
+            android:stateListAnimator="@null"
+            android:elevation="6dp" />
 
         <TextView
             android:id="@+id/tv_hint"
@@ -61,6 +75,7 @@
             android:textColor="#8A8AA0"
             android:textSize="13sp"
             android:gravity="center"
+            android:lineSpacingExtra="4dp"
             android:layout_marginTop="30dp" />
     </LinearLayout>
 </FrameLayout>

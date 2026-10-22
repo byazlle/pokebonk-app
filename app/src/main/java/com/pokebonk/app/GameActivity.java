@@ -1,6 +1,7 @@
 package com.pokebonk.app;
 
 import android.annotation.SuppressLint;
+import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
@@ -13,6 +14,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -65,6 +68,8 @@ public class GameActivity extends Activity {
     private boolean menuVisible = true;
     /** 标记本次 onPause 是否因打开设置引起（设置打开 → 挂起游戏） */
     private boolean settingsRequested = false;
+    /** 标题浮动动画（菜单显示期间循环） */
+    private ValueAnimator titleFloat;
 
     /** 当前已按下的注入目标键，避免重复 DOWN / 漏 UP */
     private final Set<Integer> heldKeys = new HashSet<>();
@@ -98,6 +103,7 @@ public class GameActivity extends Activity {
             webView.loadUrl(HOME_URL);
         }
         menuOverlay.setVisibility(menuVisible ? View.VISIBLE : View.GONE);
+        if (menuVisible) playEntrance();   // 首次进入：菜单元素错峰入场
     }
 
     private void reloadMapping() {
@@ -139,12 +145,64 @@ public class GameActivity extends Activity {
 
     private void hideMenu() {
         menuVisible = false;
-        menuOverlay.setVisibility(View.GONE);
+        if (titleFloat != null) titleFloat.cancel();
+        // 推进转场：镜头从主菜单"推入"游戏画面（放大 + 淡出）
+        menuOverlay.setPivotX(menuOverlay.getWidth() / 2f);
+        menuOverlay.setPivotY(menuOverlay.getHeight() / 2f);
+        menuOverlay.animate()
+                .scaleX(3.2f).scaleY(3.2f).alpha(0f)
+                .setDuration(520)
+                .setInterpolator(new AccelerateInterpolator(1.6f))
+                .withEndAction(() -> {
+                    menuOverlay.setVisibility(View.GONE);
+                    menuOverlay.setScaleX(1f);
+                    menuOverlay.setScaleY(1f);
+                    menuOverlay.setAlpha(1f);
+                })
+                .start();
     }
 
     private void showMenu() {
         menuVisible = true;
         menuOverlay.setVisibility(View.VISIBLE);
+        // 返回菜单：轻微缩放淡入
+        menuOverlay.setScaleX(1.12f);
+        menuOverlay.setScaleY(1.12f);
+        menuOverlay.setAlpha(0f);
+        menuOverlay.animate()
+                .scaleX(1f).scaleY(1f).alpha(1f)
+                .setDuration(380)
+                .setInterpolator(new DecelerateInterpolator())
+                .start();
+        playEntrance();
+    }
+
+    /** 菜单元素错峰入场（上浮 + 淡入） */
+    private void playEntrance() {
+        long delay = 0;
+        int[] ids = {R.id.tv_title, R.id.tv_version, R.id.btn_play, R.id.btn_settings, R.id.tv_hint};
+        for (int id : ids) {
+            View v = menuOverlay.findViewById(id);
+            if (v == null || v.getVisibility() == View.GONE) continue;
+            v.setAlpha(0f);
+            v.setTranslationY(44f);
+            v.animate().alpha(1f).translationY(0f)
+                    .setStartDelay(delay)
+                    .setDuration(430)
+                    .setInterpolator(new DecelerateInterpolator())
+                    .start();
+            delay += 90;
+        }
+        // 标题缓慢上下浮动
+        View title = menuOverlay.findViewById(R.id.tv_title);
+        if (titleFloat != null) titleFloat.cancel();
+        titleFloat = ValueAnimator.ofFloat(0f, -12f, 0f);
+        titleFloat.setDuration(2800);
+        titleFloat.setRepeatCount(ValueAnimator.INFINITE);
+        titleFloat.setInterpolator(new DecelerateInterpolator());
+        titleFloat.addUpdateListener(a -> title.setTranslationY((Float) a.getAnimatedValue()));
+        titleFloat.setStartDelay(600);
+        titleFloat.start();
     }
 
     private void openSettings() {
@@ -436,6 +494,7 @@ public class GameActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+        if (titleFloat != null) titleFloat.cancel();
         if (webView != null) {
             webView.loadUrl("about:blank");
             webView.destroy();

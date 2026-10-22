@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 主菜单背景：带透明度的对角渐变（隐约透出背后运行的游戏） -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <gradient
+        android:angle="315"
+        android:startColor="#F21E1E3C"
+        android:centerColor="#E6141420"
+        android:endColor="#D80A0A16" />
+</shape>

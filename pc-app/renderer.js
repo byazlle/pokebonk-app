@@ -59,7 +59,15 @@ const $ = (id) => document.getElementById(id);
 const menuEl = $("menu"), settingsEl = $("settings");
 let settingsOpen = false;
 
-function hideMenu() { menuEl.style.display = "none"; window.native.focusGame(); }
+function hideMenu() {
+  // 推进转场：菜单放大淡出，镜头"推入"游戏画面
+  menuEl.classList.add("starting");
+  window.native.focusGame();
+  setTimeout(() => {
+    menuEl.style.display = "none";
+    menuEl.classList.remove("starting");
+  }, 580);
+}
 function openSettings() {
   if (settingsOpen) return;
   settingsOpen = true;
