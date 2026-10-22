@@ -58,7 +58,7 @@ jobs:
           npm install --no-audit --no-fund
           npx electron-packager . Pokebonk --platform=win32 --arch=x64 --out=dist --overwrite
           cd dist
-          zip -qr ../Pokebonk-0.2-pc-win64.zip Pokebonk-win32-x64
+          zip -qr Pokebonk-0.2-pc-win64.zip Pokebonk-win32-x64
 
       - name: Upload PC package
         uses: actions/upload-artifact@v4
