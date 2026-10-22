@@ -49,7 +49,14 @@
 | 默认全屏沉浸 | 隐藏状态栏/导航栏，边缘上滑临时呼出；刘海屏 shortEdges 适配；屏幕常亮 |
 | 正常交互 | JS、DOM Storage、自动播放音效、HTML5 全屏、硬件加速 |
 
-## 获取 APK（GitHub Actions 自动打包）
+## 获取 APK
+
+**直接下载（推荐）**：进入 [Releases · v0.1](https://github.com/byazlle/pokebonk-app/releases/tag/v0.1) 下载：
+
+- `Pokebonk-0.1-original-debug.apk` — 原版
+- `Pokebonk-0.1-gamepad-debug.apk` — 手柄版
+
+**从 Actions 构建**：
 
 1. 推送到本仓库后，进入 **Actions** 页签
 2. 等 "Build APK" 工作流跑完，在运行结果页下载 **pokebonk-apks**
