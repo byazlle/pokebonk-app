@@ -42,7 +42,10 @@ jobs:
           path: dist/*.apk
 
   build-pc:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -52,16 +55,15 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Build Windows package (Electron)
+      - name: Build Windows installer (Electron + NSIS)
         run: |
           cd pc-app
           npm install --no-audit --no-fund
-          npx electron-packager . Pokebonk --platform=win32 --arch=x64 --out=dist --overwrite
-          cd dist
-          zip -qr Pokebonk-0.2-pc-win64.zip Pokebonk-win32-x64
+          npx electron-builder --win --x64
+          ls -la dist
 
-      - name: Upload PC package
+      - name: Upload PC installer
         uses: actions/upload-artifact@v4
         with:
-          name: pokebonk-pc
-          path: pc-app/dist/Pokebonk-0.2-pc-win64.zip
+          name: pokebonk-pc-setup
+          path: pc-app/dist/*.exe

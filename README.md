@@ -14,7 +14,8 @@
 
 - `Pokebonk-0.2-original-debug.apk` — 手机原版
 - `Pokebonk-0.2-gamepad-debug.apk` — 手机手柄版
-- `Pokebonk-0.2-pc-win64.zip` — 电脑手柄版（解压运行 `Pokebonk.exe`）
+- `Pokebonk-0.2-pc-win64-setup.exe` — **电脑手柄版安装包**（推荐：双击安装，可选安装目录，自动创建开始菜单/桌面快捷方式）
+- `Pokebonk-0.2-pc-win64.zip` — 电脑手柄版免安装压缩包（解压运行 `Pokebonk.exe`）
 
 ## v0.2 新特性
 
@@ -72,7 +73,7 @@
 ## 从源码构建
 
 - Android：Android Studio 打开项目 → `Build APK(s)`；或 `gradle assembleOriginalDebug assembleGamepadDebug`
-- Windows：`cd pc-app && npm install && npx electron-packager . Pokebonk --platform=win32 --arch=x64 --out=dist --overwrite`
+- Windows（生成安装包）：`cd pc-app && npm install && npx electron-builder --win --x64`，产物 `dist/Pokebonk-0.2-pc-win64-setup.exe`
 
 推送任意提交也会触发 Actions 自动构建三份产物。
 
