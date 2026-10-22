@@ -82,3 +82,14 @@
 - 游戏网址：`GameActivity.java` 的 `HOME_URL` / `pc-app/wrapper.html` 的 webview src
 - 默认手柄映射：`GamepadMap.java` 的 `DEFAULTS` / `pc-app/renderer.js` 的 `DEFAULTS`
 - 版本号：`app/build.gradle` 的 `versionName` / `pc-app/package.json` 的 `version`
+
+## 致谢 / Credits
+
+本封装项目仅是对原网页游戏的浏览器内核打包，**游戏本身由原作者独立开发**。在此特别感谢：
+
+- **原游戏《PokéBonk》作者：Charcher**（X / Twitter：[@ImCharcher](https://twitter.com/ImCharcher)）
+  独立开发者，于 2026-10-14 发布《PokéBonk》——一款完全免费、非营利的宝可梦同人 3D 肉鸽幸存者网页游戏（玩法灵感来自《Megabonk》）。本封装应用所承载的全部玩法、内容与素材版权均归原作者所有。
+- **玩法灵感**：《Megabonk》——Charcher 在发布说明中明确表示《PokéBonk》在 3D 世界机制（尤其是立体垂直空间）上深受其启发。
+- **封装内核**：Android System WebView 与 Electron（Chromium）内核，让游戏在手机 / 桌面获得原生级横屏沉浸体验与 Xbox 手柄映射支持。
+
+> ⚠️ 版权声明：《PokéBonk》为宝可梦（任天堂 / The Pokémon Company / Game Freak）同人二创作品，与官方无任何关联；本封装仓库 `byazlle/pokebonk-app` 亦为粉丝自发封装，非官方、非商业用途。若原作者 Charcher 提出下架或其他要求，我们将立即配合处理。
